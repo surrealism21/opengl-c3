@@ -1,13 +1,28 @@
 import "dart:io";
 import 'package:xml/xml.dart';
 
+// i don't know dart so most of my changes suck
+// i don't want to add any packages so my changes suck
+// overall this sucks and i could rewrite it but choose not too...
+
 class EnumValue {
   final String value;
   final String name;
   const EnumValue(this.value, this.name);
 
   String toString() {
-    return "const ${name.toUpperCase()} = $value;";
+    // this is sort of garbage because i've never used Dart
+    // Remove GL_ as namespaces exist
+    String newname;
+    newname = name.toUpperCase().substring(3);
+
+    // if the first char is a number... this is super slow and dumb
+    String slop = newname.substring(0, 1);
+    if (slop == "1" || slop == "2" || slop == "3" || slop == "4") {
+      // just keep GL_
+      return "const ${name} = $value;";
+    }
+    return "const ${newname} = $value;";
   }
 }
 
@@ -46,7 +61,7 @@ class Command {
   }
 
   String toDefinition() {
-    return "def ${defName()} = fn $returnType(${params.map((e) => e.toString()).join(", ")});";
+    return "alias ${defName()} = fn $returnType(${params.map((e) => e.toString()).join(", ")});";
   }
 
   String toBinding() {
@@ -54,7 +69,7 @@ class Command {
   }
 
   String toCallFn() {
-    return "fn ${returnType} ${shortName(false)} (${params.map((e) => e.toString()).join(", ")}) => bindings.${shortName(false)}(${params.map((e) => renameParameter(e.name)).join(",")});";
+    return "fn ${returnType}${shortName(false)} (${params.map((e) => e.toString()).join(", ")}) => bindings.${shortName(false)}(${params.map((e) => renameParameter(e.name)).join(",")});";
   }
 
   String getProc() {
@@ -122,41 +137,41 @@ String Comment(String value) {
 }
 
 const C3_types = """
-def GLenum = CUInt;
-def GLboolean = bool;
-def GLbitfield = CUInt;
-def GLbyte = ichar;
-def GLubyte = char;
-def GLshort = short;
-def GLushort = ushort;
-def GLint = CInt;
-def GLuint = CUInt;
-def GLclampx = int;
-def GLsizei = CInt;
-def GLfloat = float;
-def GLclampf = float;
-def GLdouble = double;
-def GLclampd = double;
-def GLeglClientBufferEXT = void;
-def GLeglImageOES = void;
-def GLchar = char;
-def GLcharARB = char;
+alias GLenum = int;
+alias GLboolean = bool;
+alias GLbitfield = int;
+alias GLbyte = ichar;
+alias GLubyte = char;
+alias GLshort = short;
+alias GLushort = ushort;
+alias GLint = int;
+alias GLuint = int;
+alias GLclampx = int;
+alias GLsizei = int;
+alias GLfloat = float;
+alias GLclampf = float;
+alias GLdouble = double;
+alias GLclampd = double;
+alias GLeglClientBufferEXT = void;
+alias GLeglImageOES = void;
+alias GLchar = char;
+alias GLcharARB = char;
 
-def GLhalf = ushort;
-def GLhalfARB = ushort;
-def GLfixed = int;
-def GLintptr = usz;
-def GLintptrARB = usz;
-def GLsizeiptr = isz;
-def GLsizeiptrARB = isz;
-def GLint64 = long;
-def GLint64EXT = long;
-def GLuint64 = ulong;
-def GLuint64EXT = ulong;
-def GLsync = void*;
-def GLdebugproc = void*;
-def GLdebugprocarb = void*;
-def GLdebugprockhr = void*;
+alias GLhalf = ushort;
+alias GLhalfARB = ushort;
+alias GLfixed = int;
+alias GLintptr = usz;
+alias GLintptrARB = usz;
+alias GLsizeiptr = isz;
+alias GLsizeiptrARB = isz;
+alias GLint64 = long;
+alias GLint64EXT = long;
+alias GLuint64 = ulong;
+alias GLuint64EXT = ulong;
+alias GLsync = void*;
+alias GLdebugproc = void*;
+alias GLdebugprocarb = void*;
+alias GLdebugprockhr = void*;
 """;
 
 void main() {
@@ -211,7 +226,7 @@ void main() {
 
   // Create function bindings placeholder
   String bindingsPlaceholder = Comment("Bindings") +
-      "struct GL_bindings\n{\n" +
+      "struct GL_bindings {\n" +
       commands.map((value) => value!.toBinding()).join("\n") +
       "\n}" +
       Comment("Bindings memory") +
@@ -221,7 +236,7 @@ void main() {
   String fnDefinitions = Comment("Function definitions") +
       commands.map((value) => value!.toDefinition()).join("\n") +
       Comment("GLFW proc definitions") +
-      "\ndef ProcFN = fn void* (char*);\n\n";
+      "\nalias ProcFN = fn void* (char*);\n\n";
 
   // Create Constants list
   String constants = Comment("Constants") + enums.map((value) => value.toString()).join("\n");
