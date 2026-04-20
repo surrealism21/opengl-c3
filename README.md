@@ -1,5 +1,6 @@
 # Opengl C3 bindings generator
 
+Updated by surrealism21 for the newest versions of c3. Note that the examples have *not* been updated and I do not plan to update them...
 
 ### Building
 
