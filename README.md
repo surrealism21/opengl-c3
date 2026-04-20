@@ -20,6 +20,9 @@ Download `opengl.c3l` file and then copy it to your C3 project dependencies fold
 C3 project.json example
 
 ```
-"dependencies": ["opengl"],
-"dependency-search-paths": [ "dependencies" ],
+"dependency-search-paths": [ "lib" ],
+"dependencies": [ "opengl" ],
+
+"linked-libraries": ["GL"],
+"linker-search-paths": ["lib"],
 ```
